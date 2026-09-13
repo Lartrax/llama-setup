@@ -3,7 +3,6 @@ module status_logger
 import interact
 import term
 
-const white = '\x1b[37m'
 const red = '\x1b[31m'
 const green = '\x1b[32m'
 const yellow = '\x1b[33m'
@@ -82,7 +81,7 @@ pub fn (mut logger Logger) error(title string, p StatusLoggerParams) {
 
 @[params]
 struct PrintStatusParams {
-	ansi_color      string = white
+	ansi_color      string
 	overwrite_lines int
 }
 
@@ -92,5 +91,5 @@ fn print_status(status string, p PrintStatusParams) {
 		interact.clear(p.overwrite_lines + 1)
 	}
 	if status != '' { println('${p.ansi_color}${status}\x1b[m') }
-	println('${p.ansi_color}${'-':(width/2)r}\x1b[m')
+	println('${p.ansi_color}${'-':(width / 2)r}\x1b[m')
 }
