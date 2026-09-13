@@ -1,0 +1,13 @@
+# Environment
+.env
+
+# Executables
+*.exe
+init
+
+# Service dirs
+llama
+models
+
+# Temporary dirs/files
+*_tmp.*
