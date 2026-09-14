@@ -1,8 +1,14 @@
 -include .env
 
+ifeq ($(OS), Windows_NT)
+	LLAMA := llama
+else
+	LLAMA := ./llama
+endif
+
 start:
 	@cd llama && \
-	./llama serve \
+	$(LLAMA) serve \
 	--api-key "${API_KEY}" \
 	--gpu-layers all \
 	--ctx-size ${CONTEXT_SIZE} \
@@ -12,7 +18,7 @@ start:
 
 start-ui:
 	@cd llama && \
-	./llama serve \
+	$(LLAMA) serve \
 	--api-key "${API_KEY}" \
 	--gpu-layers all \
 	--ctx-size ${CONTEXT_SIZE} \
@@ -25,11 +31,11 @@ init:
 
 install-high:
 	@cd llama && \
-	./llama download --hf-repo openbmb/MiniCPM5-2B-GGUF:Q8_0
+	$(LLAMA) download --hf-repo openbmb/MiniCPM5-2B-GGUF:Q8_0
 
 install-low:
 	@cd llama && \
-	./llama download --hf-repo openbmb/MiniCPM5-2B-GGUF:Q4_K_M
+	$(LLAMA) download --hf-repo openbmb/MiniCPM5-2B-GGUF:Q4_K_M
 
 install-high-fast:
 	@aria2c \
