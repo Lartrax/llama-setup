@@ -8,6 +8,7 @@ import interact
 import status_logger
 import system
 import rand
+import os as _ { ls, mv }
 
 @[heap]
 pub struct TaskHandler {
@@ -119,10 +120,23 @@ pub fn (h TaskHandler) find_latest_llama_release(os system.OS, arch system.Arch,
 	return llama_file, cuda_file
 }
 
+fn (h TaskHandler) macos_rename_unpacked_archive() {
+	unpack_dir := ls('./') or {
+		msg := 'failed to ls in ./: ${err}, rename the directory llama-#### to llama'
+		h.logger.warn('Installing llama.cpp (warn)', message: msg)
+		return
+	}.filter(it.starts_with('llama-'))[0]
+	rename_dir('./${unpack_dir}', './llama') or {
+		msg := 'failed to rename ${unpack_dir} to llama: ${err}, rename the directory to llama'
+		h.logger.warn('Installing llama.cpp (warn)', message: msg)
+		return
+	}
+	return
+}
+
 pub fn (h TaskHandler) install_llama(llama_file convert.FileSpec) ! {
 	h.logger.info('Installing llama.cpp (downloading)')
-	download_manager.download_to_path(llama_file.download_url,
-		'./llama_tmp.${llama_file.extention}') or {
+	download_manager.download_to_path(llama_file.download_url, './llama_tmp.${llama_file.extention}') or {
 		interact.clear(1)
 		msg := 'failed to download llama archive: ${err}'
 		h.logger.error('Installing llama.cpp (error)', message: msg)
@@ -130,14 +144,17 @@ pub fn (h TaskHandler) install_llama(llama_file convert.FileSpec) ! {
 	}
 	interact.clear(1)
 	h.logger.info('Installing llama.cpp (unpacking)', overwrite: true)
-	file_manager.unpack_archive('./llama_tmp.${llama_file.extention}', llama_file.extention,
-		'./llama') or {
+	destination := $if macos { './' } $else { './llama' }
+	file_manager.unpack_archive('./llama_tmp.${llama_file.extention}', llama_file.extention, destination) or {
 		msg := 'failed to unpack llama archive: ${err}, extract it yourself'
 		h.logger.error('Installing llama.cpp (error)', message: msg)
 		return err
 	}
+	$if macos {
+		h.macos_rename_unpacked_archive()
+	}
 	h.logger.info('Installing llama.cpp (cleanup)', overwrite: true)
-	file_manager.delete_file('./llama_tmp.${llama_file.extention}') or {
+	rm('./llama_tmp.${llama_file.extention}') or {
 		msg := 'failed to delete llama tmp archive: ${err}, delete it yourself'
 		h.logger.warn('Installing llama.cpp (warn)', message: msg)
 		return
@@ -162,22 +179,11 @@ pub fn (h TaskHandler) install_cuda_dlls(cuda_file convert.FileSpec) ! {
 		return err
 	}
 	h.logger.info('Installing cuda dlls (cleanup)', overwrite: true)
-	file_manager.delete_file('./cuda_tmp.${cuda_file.extention}') or {
+	rm('./cuda_tmp.${cuda_file.extention}') or {
 		msg := 'failed to delete cuda tmp archive: ${err}, delete it yourself'
 		h.logger.warn('Installing cuda dlls (warn)', message: msg)
 		return
 	}
 	h.logger.ok('Installing cuda dlls (done)')
-	return
-}
-
-pub fn (h TaskHandler) remove_macos_quarantine() ! {
-	h.logger.info('Removing quarantine from files')
-	file_manager.decontaminate_directory('./llama') or {
-		msg := 'failed to remove quarantine from files: ${err}'
-		h.logger.error('Removing quarantine from files (error)', message: msg)
-		return err
-	}
-	h.logger.ok('Removing quarantine from files (done)')
 	return
 }

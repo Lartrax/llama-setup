@@ -24,10 +24,6 @@ if os == .windows && (runner == .cuda12 || runner == .cuda13) {
 	task.install_cuda_dlls(cuda_file) or { panic(err) }
 }
 
-if os == .macos {
-	task.remove_macos_quarantine() or { panic(err) }
-}
-
 println('Done!\n')
 println('\x1b[97mNext steps:\n')
 println('Install a model:\x1b[m')
