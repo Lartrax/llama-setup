@@ -65,7 +65,8 @@ pub fn (mut logger Logger) warn(title string, p StatusLoggerParams) {
 	should_overwrite := if p.overwrite == none { true } else { p.overwrite }
 	overwrite_lines := if should_overwrite == true { logger.previous_lines } else { 0 }
 	print_status(status, ansi_color: yellow, overwrite_lines: overwrite_lines)
-	logger.previous_lines = status.split_into_lines().len
+  // Make sure next log can't overwrite warning.
+	logger.previous_lines = 0
 }
 
 // StatusLogger.error()
@@ -76,7 +77,8 @@ pub fn (mut logger Logger) error(title string, p StatusLoggerParams) {
 	should_overwrite := if p.overwrite == none { true } else { p.overwrite }
 	overwrite_lines := if should_overwrite == true { logger.previous_lines } else { 0 }
 	print_status(status, ansi_color: red, overwrite_lines: overwrite_lines)
-	logger.previous_lines = status.split_into_lines().len
+	// Make sure next log can't overwrite error.
+  logger.previous_lines = 0
 }
 
 @[params]
