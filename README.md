@@ -43,7 +43,7 @@ SPLIT_COUNT=16 # How many connections to use with aria2c. Defaults to 16x speedu
 This project only ships the `MiniCPM5-2B` model through make commands.  
 If you need other models refer to the [llama.cpp docs](https://llama.app/docs/quickstart) on how to install via command line. Make sure to navigate to the `llama` folder before issuing commands to llama.cpp.
 
-Huggingface severely throttles connections, so I recommend using [aria2c](https://aria2.github.io/) to download the models directly. With aria2c you can split the connection and download more of the project at a time. Say with 2 connections. One would download from 0-50% and the other would at the same time download from 50-100%.
+Huggingface severely throttles connections, so I recommend using [aria2c](https://aria2.github.io/) to download the models directly. With aria2c you can split the connection and download more of the project at a time. Say with 2 connections: the first would download from 0-50% and the second would at the same time download from 50-100%.
 ```make
 # Example from makefile:
 aria2c \
